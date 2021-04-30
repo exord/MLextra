@@ -8,7 +8,9 @@ Created on Wed Mar 10 15:10:29 2021
 import numpy as np
 import scipy.stats as st
 from scipy.linalg import cho_factor, cho_solve
-
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+import pandas as pd
 
 def hat_matrix(X, include_bias=True):
     """
@@ -69,3 +71,30 @@ def anova(t, y_base, y_model, nparam_base, nparam_models):
         print('New_{model:d} \tN-{npar:d} \tNew_{model:d} - Base \t{dpar:d} '
               '\t{fratio:.4f}\t{pvalue:.2e}'.format(**printdict))
     return
+
+
+def vif(X):
+    """
+    Compute the Variance Inflation Factor (VIF) for a given dataset.
+    
+    :param pd.DataFrame X: design matrix as a Pandas Data Frame (i.e. with column names, etc.)
+    
+    :return dict outdict: a dictionary with the VIF for each feature.
+    """
+    outdict = {}
+    for c in X.columns:
+        Xi = X.copy()
+        
+        # Asssign label
+        X_ = Xi.drop(c, axis='columns', inplace=False)
+        
+        assert not c in X_.columns, 'No saqué la columna'
+        
+        t_ = Xi.loc[:, c]
+        
+        lr = LinearRegression()
+        lr = lr.fit(X_, t_)
+        
+        outdict[c] = r2_score(t_, lr.predict(X_))
+        
+    return outdict
