@@ -137,7 +137,7 @@ def vif(X, target_columns=None):
 
 def optimise_polyregressor(X_train, t_train,
                            alphas=np.logspace(-8, -2, 20), 
-                           degrees=np.range(1, 6), 
+                           degrees=range(1, 6), 
                            regression='ridge', **kwargs):
     """Find optimal hyperparameters."""
     if regression == 'ridge':
@@ -147,8 +147,8 @@ def optimise_polyregressor(X_train, t_train,
     elif regression == 'old':
         r = LinearRegression()
         
-    model = Pipeline(('poly', PolynomialFeatures()),
-                      'regressor', r)
+    model = Pipeline([('poly', PolynomialFeatures()),
+                      ('regressor', r)])
     
     param_grid = {'poly__degree': degrees, 'regressor__alpha': alphas}
     gscv = GridSearchCV(model, param_grid=param_grid, **kwargs)
